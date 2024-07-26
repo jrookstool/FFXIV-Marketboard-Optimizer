@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Select from 'react-select';
 import axios from 'axios';
 import './App.css';
 
@@ -6,13 +7,17 @@ function App() {
 
   const [resourceName, setResourceName] = useState('Boar Hide');
   const [quantity, setQuantity] = useState(1);
-  const [worldDCRegion, setWorldDCRegion] = useState('Primal');
+  const [worldDCRegion, setWorldDCRegion] = useState('Aether');
+  const [world, setWorld] = useState('Adamantoise');
+  const [showWorld, setShowWorld] = useState('false');
+  const [options, setOptions] = useState([]);
 
   async function handleSubmit() {
     //console.log('submitting', quantity, resourceName);
     let res = await axios.post('http://localhost:8000/search', {
       name: resourceName,
-      quantity: quantity
+      quantity: quantity,
+      dataCenter: worldDCRegion,
     })
 
     console.log('res', res.data);
@@ -20,6 +25,153 @@ function App() {
     if (res) {
       console.log(res);
     }
+  }
+
+  function getOptionsFromWorld(worldDCRegion) {
+    let options = [];
+
+    switch(worldDCRegion) {
+      case 'Aether':
+        options = [
+          {value: 'Adamantoise', label: 'Adamantoise'},
+          {value: 'Cactuar', label: 'Cactuar'},
+          {value: 'Faerie', label: 'Faerie'},
+          {value: 'Gilgamesh', label: 'Gilgamesh'},
+          {value: 'Jenova', label: 'Jenova'},
+          {value: 'Midgardsormr', label: 'Midgardsormr'},
+          {value: 'Sargatanas', label: 'Sargatanas'},
+          {value: 'Siren', label: 'Siren'},
+        ];
+        break;
+      case 'Crystal':
+        options = [
+          {value: 'Balmung', label: 'Balmung'},
+          {value: 'Brynhildr', label: 'Brynhildr'},
+          {value: 'Coeurl', label: 'Coeurl'},
+          {value: 'Diabolos', label: 'Diabolos'},
+          {value: 'Goblin', label: 'Goblin'},
+          {value: 'Malboro', label: 'Malboro'},
+          {value: 'Mateus', label: 'Mateus'},
+          {value: 'Zalera', label: 'Zalera'},
+        ];
+        break;
+      case 'Dynamis':
+        options = [
+          {value: 'Cuchulainn', label: 'Cuchulainn'},
+          {value: 'Golem', label: 'Golem'},
+          {value: 'Halicarnassus', label: 'Halicarnassus'},
+          {value: 'Kraken', label: 'Kraken'},
+          {value: 'Maduin', label: 'Maduin'},
+          {value: 'Marilith', label: 'Marilith'},
+          {value: 'Rafflesia', label: 'Rafflesia'},
+          {value: 'Seraph', label: 'Seraph'},
+        ];
+        break;
+      case 'Primal':
+        options = [
+          {value: 'Behemoth', label: 'Behemoth'},
+          {value: 'Excalibur', label: 'Excalibur'},
+          {value: 'Exodus', label: 'Exodus'},
+          {value: 'Famfrit', label: 'Famfrit'},
+          {value: 'Hyperion', label: 'Hyperion'},
+          {value: 'Lamia', label: 'Lamia'},
+          {value: 'Leviathan', label: 'Leviathan'},
+          {value: 'Ultros', label: 'Ultros'},
+        ];
+        break;
+      case 'Chaos':
+        options = [
+          {value: 'Cerberus', label: 'Cerberus'},
+          {value: 'Louisoix', label: 'Louisoix'},
+          {value: 'Moogle', label: 'Moogle'},
+          {value: 'Omega', label: 'Omega'},
+          {value: 'Phantom', label: 'Phantom'},
+          {value: 'Ragnarok', label: 'Ragnarok'},
+          {value: 'Sagittarius', label: 'Sagittarius'},
+          {value: 'Spriggan', label: 'Spriggan'},
+        ];
+        break;
+      case 'Light':
+        options = [
+          {value: 'Alpha', label: 'Alpha'},
+          {value: 'Lich', label: 'Lich'},
+          {value: 'Odin', label: 'Odin'},
+          {value: 'Phoenix', label: 'Phoenix'},
+          {value: 'Raiden', label: 'Raiden'},
+          {value: 'Shiva', label: 'Shiva'},
+          {value: 'Twintania', label: 'Twintania'},
+          {value: 'Zodiark', label: 'Zodiark'},
+        ];
+        break;
+      case 'Shadow':
+        options = [
+          {value: 'Innocence', label: 'Innocence'},
+          {value: 'Pixie', label: 'Pixie'},
+          {value: 'Titania', label: 'Titania'},
+          {value: 'Tycoon', label: 'Tycoon'},
+        ];
+        break;
+      case 'Elemental':
+        options = [
+          {value: 'Aegis', label: 'Aegis'},
+          {value: 'Atomos', label: 'Atomos'},
+          {value: 'Carbuncle', label: 'Carbuncle'},
+          {value: 'Garuda', label: 'Garuda'},
+          {value: 'Gungnir', label: 'Gungnir'},
+          {value: 'Kujata', label: 'Kujata'},
+          {value: 'Tonberry', label: 'Tonberry'},
+          {value: 'Typhon', label: 'Typhon'},
+        ];
+        break;
+      case 'Gaia':
+        options = [
+          {value: 'Alexander', label: 'Alexander'},
+          {value: 'Bahamut', label: 'Bahamut'},
+          {value: 'Durandal', label: 'Durandal'},
+          {value: 'Fenrir', label: 'Fenrir'},
+          {value: 'Ifrit', label: 'Ifrit'},
+          {value: 'Ridill', label: 'Ridill'},
+          {value: 'Tiamat', label: 'Tiamat'},
+          {value: 'Ultima', label: 'Ultima'},
+        ];
+        break;
+      case 'Mana':
+        options = [
+          {value: 'Anima', label: 'Anima'},
+          {value: 'Asura', label: 'Asura'},
+          {value: 'Chocobo', label: 'Chocobo'},
+          {value: 'Hades', label: 'Hades'},
+          {value: 'Ixion', label: 'Ixion'},
+          {value: 'Masamune', label: 'Masamune'},
+          {value: 'Pandaemonium', label: 'Pandaemonium'},
+          {value: 'Titan', label: 'Titan'},
+        ];
+        break;
+      case 'Meteor':
+        options = [
+          {value: 'Belias', label: 'Belias'},
+          {value: 'Mandragora', label: 'Mandragora'},
+          {value: 'Ramuh', label: 'Ramuh'},
+          {value: 'Shinryu', label: 'Shinryu'},
+          {value: 'Unicorn', label: 'Unicorn'},
+          {value: 'Valefor', label: 'Valefor'},
+          {value: 'Yojimbo', label: 'Yojimbo'},
+          {value: 'Zeromus', label: 'Zeromus'},
+        ];
+        break;
+      case 'Materia':
+        options = [
+          {value: 'Bismarck', label: 'Bismarck'},
+          {value: 'Ravana', label: 'Ravana'},
+          {value: 'Sephirot', label: 'Sephirot'},
+          {value: 'Sophia', label: 'Sophia'},
+          {value: 'Zurvan', label: 'Zurvan'},
+        ];
+        break;
+      default:
+        break;
+    }
+    return options;
   }
 
   return (
@@ -42,32 +194,57 @@ function App() {
           </div>
 
           <div>
-              Quantity:
-              <input 
-                type="text" 
-                name="name" 
-                className="form-input"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}/>
+              <label className="form-label">
+                Quantity:
+                <input 
+                  type="text" 
+                  name="name" 
+                  className="form-input"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}/>
+              </label>
+              
           </div>
 
           <div>
-              Data Center Region:
-              <select
-                className="form-input"
-                value={worldDCRegion}
-                onChange={(e) => setWorldDCRegion(e.target.value)}>
-                <option value="Aether">Aether</option>
-                <option value="Primal">Primal</option>
-                <option value="Crystal">Crystal</option>
-                <option value="Chaos">Chaos</option>
-                <option value="Light">Light</option>
-                <option value="Elemental">Elemental</option>
-                <option value="Gaia">Gaia</option>
-                <option value="Mana">Mana</option>
-              </select>
+              <label className="form-label">
+                Data Center Region:
+                <select
+                  className="form-input"
+                  value={worldDCRegion}
+                  onChange={(e) => {
+                    setWorldDCRegion(e.target.value)
+                    setShowWorld('true');
+                    setOptions(getOptionsFromWorld(e.target.value));
+                  }}>
+                  <option value="Aether">Aether</option>
+                  <option value="Primal">Primal</option>
+                  <option value="Crystal">Crystal</option>
+                  <option value="Dynamis">Dynamis</option>
+                  <option value="Shadow">Shadow</option>
+                  <option value="Chaos">Chaos</option>
+                  <option value="Light">Light</option>
+                  <option value="Elemental">Elemental</option>
+                  <option value="Gaia">Gaia</option>
+                  <option value="Mana">Mana</option>
+                  <option value="Meteor">Meteor</option>
+                  <option value="Materia">Materia</option>
+                </select>
+              </label>
+              
           </div>
-
+          
+          <div>
+            <label className="form-label">
+              World:
+              <Select
+                className="form-input"
+                value={world}
+                onChange={(e) => setWorld(e.value)}
+                options={options}
+              />
+            </label>
+          </div>
 
           <button className="form-button" onClick={handleSubmit}> Submit </button>
         </div>

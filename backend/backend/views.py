@@ -4,6 +4,13 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from bs4 import BeautifulSoup
 import requests
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+private_key = os.getenv("XIVAPI_PRIVATE_KEY")
+
 
 @api_view(['POST'])
 @csrf_exempt
@@ -16,6 +23,7 @@ def search(data):
     data = json.loads(data.body)
     itemName = data['name']
     quantity = int(data['quantity'])
+    dataCenter = data['dataCenter']
 
     print("itemName: ", itemName)
     print("quantity: ", quantity)
@@ -65,21 +73,43 @@ def search(data):
             item_name = item_name_tag['title']
             items.append(item_name)
 
+    print("scraping done")
+
     ids = []
+    item_id_convert = {}
         
     for item in items:
         ids.append(convertItemToID(item))
-    
-    print(ids)
 
-    return HttpResponse(json.dumps({"items": items}), content_type="application/json")
+    for item, id in zip(items, ids):
+        item_id_convert[id] = item
+
+    print("id conversion done")
+    
+    mbData = getMarketData(ids, dataCenter)
+    
+    print("market data done")
+
+    prices = {}
+    searchTable = mbData['items']
+    for id in ids:
+        prices[item_id_convert[id]] = searchTable[str(id)]['listings'][0]['pricePerUnit']
+    
+    print(prices)
+
+    return HttpResponse(json.dumps({"prices": prices}), content_type="application/json")
 
 def convertItemToID(itemName):
-    url = "https://xivapi.com/search?string=" + itemName + "&indexes=Item&columns=ID"
+    url = "https://xivapi.com/search?string=" + itemName + "&indexes=Item&columns=ID&privatekey=" + private_key
     response = requests.get(url)
     response = response.json()['Results']
     return response[0]['ID']
 
-def getMarketData(itemID):
+def getMarketData(itemIDs, dataCenter):
     # TODO: get market data using Universalis and then return it!
-    pass
+    items = ""
+    for id in itemIDs:
+        items += str(id) + ","
+    url = "https://universalis.app/api/v2/" + dataCenter + "/" + items + "?listings=1&entries=1"
+    response = requests.get(url)
+    return response.json()
