@@ -50,6 +50,7 @@ def search(data):
     rows = rows[len(rows) - 1].find('tbody').find_all('tr')[1:]
 
     items = []
+    quantity_checks = {}
 
     for row in rows:
         item_name_tags = row.find_all('td')
@@ -79,6 +80,7 @@ def search(data):
             item_name_tag = item_name_tag.find('a', title=True)
             item_name = item_name_tag['title']
             items.append(item_name)
+            quantity_checks[item_name] = quantity_check
 
     print("scraping done")
 
@@ -114,14 +116,17 @@ def search(data):
     
     print("market data done")
 
-    prices = {}
+    prices = []
     if len(items) == 1:
-        prices[item_id_convert[ids[0]]] = mbData['listings'][0]['pricePerUnit']
+        prices = [{"itemName": items[0], "price": mbData['listings'][0]['pricePerUnit'], "quantity": quantity_checks[items[0]], "resource": itemName.replace("_", " ")}]
         return HttpResponse(json.dumps({"prices": prices}), content_type="application/json")
 
     searchTable = mbData['items']
+    # for id in ids:
+    #     prices[item_id_convert[id]] = searchTable[str(id)]['listings'][0]['pricePerUnit']
+
     for id in ids:
-        prices[item_id_convert[id]] = searchTable[str(id)]['listings'][0]['pricePerUnit']
+        prices.append({"itemName": item_id_convert[id], "price": searchTable[str(id)]['listings'][0]['pricePerUnit'], "quantity": quantity_checks[item_id_convert[id]], "resource": itemName.replace("_", " ")})
     
     print(prices)
 

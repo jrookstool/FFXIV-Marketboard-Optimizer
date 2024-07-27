@@ -56,11 +56,9 @@ function Home() {
 
         console.log('res', res.data);
 
-        if (res) {
-            console.log(res);
-        }
-
         sessionStorage.setItem('data', JSON.stringify(res.data));
+
+        console.log('sessionStorage', sessionStorage.getItem('data'));
 
         navigate('/displayPrices');
     }
