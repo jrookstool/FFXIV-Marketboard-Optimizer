@@ -2,6 +2,8 @@ import re
 import sqlite3 as sql
 import json as js
 
+db_Path = "db.sqlite3" # update if the data base is moved or if testing code
+
 def readItemsFromJson(filePath : str = "ItemsData/items.json") -> dict:
     """
     Reads a JSON file containing the item names and IDs and returns a python 
@@ -12,13 +14,15 @@ def readItemsFromJson(filePath : str = "ItemsData/items.json") -> dict:
 
     Parameters
     -------------------------------------------------------------------
-    filePath : str 
-        Path to the JSON file with all the item IDs and Names. 
+    filePath : str (optional)
+        Path to the JSON file with all the item IDs and Names. If not specified, the path to the default 
+        location of the items.json file. 
 
     Returns
     -------------------------------------------------------------------
     dict
-        Dictionary containing the item ID as a key and the item name as a value. 
+        Dictionary containing the item ID as a key and the item name as a value. IDs with 
+        no item name have an empty string as its value.
     """
     # TODO: Error handling
     with open("ItemsData/items.json") as itemData:
@@ -40,16 +44,15 @@ def createItemTableFromJson(filePath : str = "ItemsData/items.json") -> None:
 
     Parameters
     -------------------------------------------------------------------
-    filePath : str 
-        Path to the JSON file with all the item IDs and Names. IDs with no item name 
-        return an empty string as its value.
+    filePath : str (optional)
+        Path to the JSON file with all the item IDs and Names. If not specified, 
+        the path to the default location of the items.json file. 
 
     Returns
     -------------------------------------------------------------------
     None
     """
     # TODO: Error handling
-    db_Path = "../db.sqlite3" # update if the data base is moved
     
     con = sql.connect(db_Path) 
     cur = con.cursor()
@@ -67,10 +70,10 @@ def createItemTableFromJson(filePath : str = "ItemsData/items.json") -> None:
     for item in itemTableData.items():
         if item[1] != "":
             try:
-                cur.execute(f"INSERT INTO items VALUES {str(item)}")
+                cur.execute("INSERT INTO items VALUES (?, ?)", item)
 
             except sql.IntegrityError as e:
-                # pattern to match champion certifications ("XXXX #### chamion certification")
+                # pattern to match champion certifications ("XXXX #### champion certification")
                 pattern = re.compile("[A-Za-z]+\s\d+\schampion\scertification")
                 isMacth = re.fullmatch(pattern, item[1])
                 if isMacth:
@@ -87,5 +90,36 @@ def createItemTableFromJson(filePath : str = "ItemsData/items.json") -> None:
                 con.close()
                 print(e)
                 break
+    con.commit()
+    con.close()
+
+
+def getItemID(itemName : str ) -> int:
+    """
+    Queries the internal data base to retrieve the ID of the gien item.
+    
+    Parameters
+    -------------------------------------------------------------------
+    itemName : str 
+        English name of the item name. 
+
+    Returns
+    -------------------------------------------------------------------
+    int 
+        integer representing the ID of the given item name. 
+    """
+    #TODO: error handling
+    con = sql.connect(db_Path)
+    cur = con.cursor()
+
+    itemName = itemName.lower() # lower case needed to ensure a match in the data base
+
+    query = cur.execute("SELECT id FROM items WHERE name = ?", (itemName,))
+    id = query.fetchone()
 
     con.close()
+
+    if id is not None:
+        id = id[0]
+
+    return id
