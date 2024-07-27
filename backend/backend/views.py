@@ -84,6 +84,8 @@ def search(data):
 
     print("scraping done")
 
+    print(items)
+
     ids = []
     item_id_convert = {}
         
@@ -110,11 +112,8 @@ def search(data):
             time.sleep(3)
             mbData = getMarketData(ids, dataCenter)
     
-    
+    #TODO: handle cases where the item is not found in the marketboard -- in this case itemID = 0 so just check for that, remember to remove that id from the list of ids and mbdata (sanitation loop?)
 
-    print(mbData)
-    
-    print("market data done")
 
     prices = []
     if len(items) == 1:
@@ -125,17 +124,21 @@ def search(data):
     # for id in ids:
     #     prices[item_id_convert[id]] = searchTable[str(id)]['listings'][0]['pricePerUnit']
 
+    print("searchTable: ", searchTable)
     for id in ids:
+        print("id: ", id)
+        print("item: ", item_id_convert[id])
         prices.append({"itemName": item_id_convert[id], "price": searchTable[str(id)]['listings'][0]['pricePerUnit'], "quantity": quantity_checks[item_id_convert[id]], "resource": itemName.replace("_", " ")})
-    
-    print(prices)
 
     return HttpResponse(json.dumps({"prices": prices}), content_type="application/json")
 
 def convertItemToID(itemName):
-    url = "https://xivapi.com/search?string=" + itemName + "&indexes=Item&columns=ID&privatekey=" + private_key
+    url = "https://xivapi.com/search?string="+  itemName + "&string_algo=match&indexes=Item&columns=ID&privatekey=" + private_key
     response = requests.get(url)
     response = response.json()['Results']
+    if (len(response) > 1):
+        print("Multiple items found for: ", itemName)
+        print("response: ", response)
     return response[0]['ID']
 
 def getMarketData(itemIDs, dataCenter):

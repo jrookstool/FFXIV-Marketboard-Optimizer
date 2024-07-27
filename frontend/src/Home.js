@@ -57,6 +57,8 @@ function Home() {
         console.log('res', res.data);
 
         sessionStorage.setItem('data', JSON.stringify(res.data));
+        sessionStorage.setItem('resourceName', resourceName);
+        sessionStorage.setItem('quantity', quantity);
 
         console.log('sessionStorage', sessionStorage.getItem('data'));
 
