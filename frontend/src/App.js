@@ -29,6 +29,7 @@ function App() {
 
   async function handleSubmit() {
     //console.log('submitting', quantity, resourceName);
+    let location = "";
     if (!worldDCRegion || !world) {
       alert('Please select a world and data center region');
       return;
@@ -37,14 +38,14 @@ function App() {
       alert('Please select a data center region');
       return;
     } else if (world) {
-      setWorldDCRegion(world.value);
+      location = world.value;
     } else {
-      setWorldDCRegion(worldDCRegion.value);
+      location = worldDCRegion.value;
     }
     let res = await axios.post('http://localhost:8000/search', {
       name: resourceName,
       quantity: quantity,
-      dataCenter: worldDCRegion,
+      dataCenter: location,
     })
 
     console.log('res', res.data);
