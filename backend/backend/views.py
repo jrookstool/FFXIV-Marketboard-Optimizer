@@ -25,8 +25,14 @@ def search(data):
     quantity = int(data['quantity'])
     dataCenter = data['dataCenter']
 
+    print(dataCenter)
+
+    if 'value' in dataCenter:
+        dataCenter = dataCenter['value']
+
     print("itemName: ", itemName)
     print("quantity: ", quantity)
+    print("dataCenter: ", dataCenter)
 
     # Now make the url for the wiki
     itemName = itemName.replace(" ", "_")
@@ -86,11 +92,25 @@ def search(data):
 
     print("id conversion done")
     
+    
+    # I need to run the get request until it works
     mbData = getMarketData(ids, dataCenter)
+    # while 'itemIDs' not in mbData:
+    #     mbData = getMarketData(ids, dataCenter)
+    
+    
+
+    print(mbData)
     
     print("market data done")
 
+    return HttpResponse(json.dumps({"message": "Hello, world!"}), content_type="application/json")
+
     prices = {}
+    if len(items) == 1:
+        prices[item_id_convert[ids[0]]] = mbData['listings'][0]['pricePerUnit']
+        return HttpResponse(json.dumps({"prices": prices}), content_type="application/json")
+
     searchTable = mbData['items']
     for id in ids:
         prices[item_id_convert[id]] = searchTable[str(id)]['listings'][0]['pricePerUnit']
@@ -112,4 +132,5 @@ def getMarketData(itemIDs, dataCenter):
         items += str(id) + ","
     url = "https://universalis.app/api/v2/" + dataCenter + "/" + items + "?listings=1&entries=1"
     response = requests.get(url)
+    print(response.status_code)
     return response.json()

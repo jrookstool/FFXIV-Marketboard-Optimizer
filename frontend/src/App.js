@@ -7,13 +7,40 @@ function App() {
 
   const [resourceName, setResourceName] = useState('Boar Hide');
   const [quantity, setQuantity] = useState(1);
-  const [worldDCRegion, setWorldDCRegion] = useState('Aether');
-  const [world, setWorld] = useState('Adamantoise');
-  const [showWorld, setShowWorld] = useState('false');
+  const [worldDCRegion, setWorldDCRegion] = useState('');
+  const [world, setWorld] = useState('Jenova');
+  const [showWorld, setShowWorld] = useState(false);
   const [options, setOptions] = useState([]);
+
+  const customStyles = {
+    option: provided => ({
+      ...provided,
+      color: 'black'
+    }),
+    control: provided => ({
+      ...provided,
+      color: 'black'
+    }),
+    singleValue: provided => ({
+      ...provided,
+      color: 'black'
+    })
+  }
 
   async function handleSubmit() {
     //console.log('submitting', quantity, resourceName);
+    if (!worldDCRegion || !world) {
+      alert('Please select a world and data center region');
+      return;
+    }
+    else if (!worldDCRegion) {
+      alert('Please select a data center region');
+      return;
+    } else if (world) {
+      setWorldDCRegion(world.value);
+    } else {
+      setWorldDCRegion(worldDCRegion.value);
+    }
     let res = await axios.post('http://localhost:8000/search', {
       name: resourceName,
       quantity: quantity,
@@ -209,42 +236,52 @@ function App() {
           <div>
               <label className="form-label">
                 Data Center Region:
-                <select
+                <Select
                   className="form-input"
                   value={worldDCRegion}
                   onChange={(e) => {
-                    setWorldDCRegion(e.target.value)
-                    setShowWorld('true');
-                    setOptions(getOptionsFromWorld(e.target.value));
-                  }}>
-                  <option value="Aether">Aether</option>
-                  <option value="Primal">Primal</option>
-                  <option value="Crystal">Crystal</option>
-                  <option value="Dynamis">Dynamis</option>
-                  <option value="Shadow">Shadow</option>
-                  <option value="Chaos">Chaos</option>
-                  <option value="Light">Light</option>
-                  <option value="Elemental">Elemental</option>
-                  <option value="Gaia">Gaia</option>
-                  <option value="Mana">Mana</option>
-                  <option value="Meteor">Meteor</option>
-                  <option value="Materia">Materia</option>
-                </select>
-              </label>
-              
+                    setWorldDCRegion(e);
+                    setOptions(getOptionsFromWorld(e.value));
+                    setWorld(null);
+                  }}
+                  options={[
+                    {value: 'Aether', label: 'Aether'},
+                    {value: 'Primal', label: 'Primal'},
+                    {value: 'Crystal', label: 'Crystal'},
+                    {value: 'Dynamis', label: 'Dynamis'},
+                    {value: 'Shadow', label: 'Shadow'},
+                    {value: 'Chaos', label: 'Chaos'},
+                    {value: 'Light', label: 'Light'},
+                    {value: 'Elemental', label: 'Elemental'},
+                    {value: 'Gaia', label: 'Gaia'},
+                    {value: 'Mana', label: 'Mana'},
+                    {value: 'Meteor', label: 'Meteor'},
+                    {value: 'Materia', label: 'Materia'},
+                  ]}
+                  styles={customStyles}
+                />
+                <div>
+                  <input type="checkbox" onClick={() => setShowWorld(!showWorld)}/>
+                  <label style={{ 'fontSize': '20px' }}> Show World </label>
+                </div>
+                
+              </label>  
           </div>
           
-          <div>
+          {showWorld && <div>
             <label className="form-label">
               World:
               <Select
                 className="form-input"
                 value={world}
-                onChange={(e) => setWorld(e.value)}
+                onChange={(e) => setWorld(e)}
                 options={options}
+                styles={customStyles}
               />
             </label>
           </div>
+          }
+          
 
           <button className="form-button" onClick={handleSubmit}> Submit </button>
         </div>
