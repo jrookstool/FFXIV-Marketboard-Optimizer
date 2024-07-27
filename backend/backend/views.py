@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import requests
 from dotenv import load_dotenv
 import os
+import time
 
 load_dotenv()
 
@@ -97,14 +98,21 @@ def search(data):
     mbData = getMarketData(ids, dataCenter)
     # while 'itemIDs' not in mbData:
     #     mbData = getMarketData(ids, dataCenter)
+
+    if (len(items) == 1):
+        while 'itemID' not in mbData:
+            time.sleep(3)
+            mbData = getMarketData(ids, dataCenter)
+    else:
+        while 'itemIDs' not in mbData:
+            time.sleep(3)
+            mbData = getMarketData(ids, dataCenter)
     
     
 
     print(mbData)
     
     print("market data done")
-
-    return HttpResponse(json.dumps({"message": "Hello, world!"}), content_type="application/json")
 
     prices = {}
     if len(items) == 1:
@@ -131,6 +139,9 @@ def getMarketData(itemIDs, dataCenter):
     for id in itemIDs:
         items += str(id) + ","
     url = "https://universalis.app/api/v2/" + dataCenter + "/" + items + "?listings=1&entries=1"
-    response = requests.get(url)
-    print(response.status_code)
-    return response.json()
+    try:
+        response = requests.get(url)
+        print(response.status_code)
+        return response.json()
+    except:
+        return {}
