@@ -2,7 +2,7 @@ import re
 import sqlite3 as sql
 import json as js
 
-db_Path = "db.sqlite3" # update if the data base is moved or if testing code
+db_Path = "db.sqlite3" # update if the data base is moved or if testing code 
 
 def readItemsFromJson(filePath : str = "ItemsData/items.json") -> dict:
     """
@@ -101,7 +101,7 @@ def getItemID(itemName : str ) -> int:
     Parameters
     -------------------------------------------------------------------
     itemName : str 
-        English name of the item name. 
+        English name of the item. 
 
     Returns
     -------------------------------------------------------------------
@@ -123,3 +123,30 @@ def getItemID(itemName : str ) -> int:
         id = id[0]
 
     return id
+
+def insertItem(itemID : int, itemName : str) -> None:
+    """
+    Queries the internal data base to insert a new item into the data base.
+    
+    Parameters
+    -------------------------------------------------------------------
+    itemID : int 
+        ID for the item being added to the data base. 
+    itemName : str 
+        English name of the item added to the data base. 
+
+    Returns
+    -------------------------------------------------------------------
+    None
+    """
+    # TODO: error handling (duplicate items, etc. )
+    con = sql.connect(db_Path)
+    cur = con.cursor()
+
+    itemName = itemName.lower() # preparing item name for insertion
+    item = (itemID, itemName)
+
+    cur.execute("INSERT INTO items VALUES (?, ?)", item)
+    
+    con.commit()
+    con.close()

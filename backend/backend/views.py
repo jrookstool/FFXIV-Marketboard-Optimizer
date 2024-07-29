@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from bs4 import BeautifulSoup
 import requests
-from backend.itemsTable import getItemID
+from backend.itemsTable import getItemID, insertItem
 
 @api_view(['POST'])
 @csrf_exempt
@@ -68,11 +68,13 @@ def search(data):
 
     ids = []
         
-    for item in items:
-        itemID = getItemID(item) # attempt to find ID in internal data base
+    for itemName in items:
+        itemID = getItemID(itemName) # attempt to find ID in internal data base
 
         if itemID is None: # attempt to find item ID using xivapi
-            itemID = convertItemToID(item)
+            itemID = convertItemToID(itemName)
+            insertItem(itemID, itemName)
+            
         
         # TODO: handle cases where item is not found or does not exits
         ids.append(itemID)
