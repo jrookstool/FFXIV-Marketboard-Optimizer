@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from bs4 import BeautifulSoup
 import requests
+from backend.itemsTable import getItemID, insertItem
 from dotenv import load_dotenv
 import os
 import time
@@ -11,7 +12,6 @@ import time
 load_dotenv()
 
 private_key = os.getenv("XIVAPI_PRIVATE_KEY")
-
 
 @api_view(['POST'])
 @csrf_exempt
@@ -88,16 +88,21 @@ def search(data):
 
     ids = []
     item_id_convert = {}
+    
+    for itemName in items:
+        itemID = getItemID(itemName) # attempt to find ID in internal data base
+
+        if itemID is None: # attempt to find item ID using xivapi
+            itemID = convertItemToID(itemName)
+            insertItem(itemID, itemName)
+            
         
-    for item in items:
-        ids.append(convertItemToID(item))
+        # TODO: handle cases where item is not found or does not exits
+        ids.append(itemID)
 
     for item, id in zip(items, ids):
         item_id_convert[id] = item
-
-    print("id conversion done")
-    
-    
+   
     # I need to run the get request until it works
     mbData = getMarketData(ids, dataCenter)
     # while 'itemIDs' not in mbData:
@@ -143,6 +148,7 @@ def search(data):
 def convertItemToID(itemName):
     url = "https://xivapi.com/search?string="+  itemName + "&string_algo=match&indexes=Item&columns=ID&privatekey=" + private_key
     response = requests.get(url)
+    print(response.json())
     response = response.json()['Results']
     if (len(response) > 1):
         print("Multiple items found for: ", itemName)
