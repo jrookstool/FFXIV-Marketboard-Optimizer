@@ -23,6 +23,7 @@ def temp(data):
 def search(data):
     data = json.loads(data.body)
     itemName = data['name']
+    resourceName = itemName
     quantity = int(data['quantity'])
     dataCenter = data['dataCenter']
 
@@ -122,7 +123,7 @@ def search(data):
 
     prices = []
     if len(items) == 1:
-        prices = [{"itemName": items[0], "price": mbData['listings'][0]['pricePerUnit'], "quantity": quantity_checks[items[0]], "resource": itemName.replace("_", " ")}]
+        prices = [{"itemName": items[0], "price": mbData['listings'][0]['pricePerUnit'], "quantity": quantity_checks[items[0]], "resource": resourceName.replace("_", " ")}]
         return HttpResponse(json.dumps({"prices": prices}), content_type="application/json")
 
     searchTable = mbData['items']
@@ -139,7 +140,7 @@ def search(data):
                 price = "N/A"
             else:
                 price = searchTable[str(id)]['listings'][0]['pricePerUnit']
-            prices.append({"itemName": item_id_convert[id], "price": price, "quantity": quantity_checks[item_id_convert[id]], "resource": itemName.replace("_", " ")})
+            prices.append({"itemName": item_id_convert[id], "price": price, "quantity": quantity_checks[item_id_convert[id]], "resource": resourceName.replace("_", " ")})
         except KeyError:
             continue
 
