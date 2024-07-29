@@ -128,7 +128,15 @@ def search(data):
     for id in ids:
         print("id: ", id)
         print("item: ", item_id_convert[id])
-        prices.append({"itemName": item_id_convert[id], "price": searchTable[str(id)]['listings'][0]['pricePerUnit'], "quantity": quantity_checks[item_id_convert[id]], "resource": itemName.replace("_", " ")})
+        price = 0
+        try:
+            if (len(searchTable[str(id)]['listings']) == 0):
+                price = "N/A"
+            else:
+                price = searchTable[str(id)]['listings'][0]['pricePerUnit']
+            prices.append({"itemName": item_id_convert[id], "price": price, "quantity": quantity_checks[item_id_convert[id]], "resource": itemName.replace("_", " ")})
+        except KeyError:
+            continue
 
     return HttpResponse(json.dumps({"prices": prices}), content_type="application/json")
 
