@@ -45,7 +45,8 @@ def search(data):
     wikiPage = requests.get(url)
     soup = BeautifulSoup(wikiPage.content, 'html.parser')
 
-    rows = soup.find('table', class_='recipe sortable table jquery-tablesorter')
+    rows = soup.find_all('table')
+    rows = rows[:len(rows) - 1]
 
     if rows is None:
         return HttpResponse(json.dumps({"prices": []}), content_type="application/json")
@@ -86,6 +87,7 @@ def search(data):
             items.append(item_name)
             quantity_checks[item_name] = quantity_check
 
+    resID = getItemID(resourceName)
     ids = []
     item_id_convert = {}
     
@@ -103,6 +105,7 @@ def search(data):
         item_id_convert[id] = item
    
     mbData = getMarketData(ids, dataCenter)
+    resData = getMarketData([resID], dataCenter)
     if (len(items) == 1):
         while 'itemID' not in mbData:
             time.sleep(3)
@@ -111,6 +114,10 @@ def search(data):
         while 'itemIDs' not in mbData:
             time.sleep(3)
             mbData = getMarketData(ids, dataCenter)
+    
+    
+    resourceData = {"itemName": resourceName, "price": resData['listings'][0]['pricePerUnit'], "quantity": quantity}
+    print("resData: ", resourceData)
 
     prices = []
     if len(items) == 1:
@@ -129,7 +136,7 @@ def search(data):
         except KeyError:
             continue
 
-    return HttpResponse(json.dumps({"prices": prices}), content_type="application/json")
+    return HttpResponse(json.dumps({"prices": prices, "resourceData": resourceData}), content_type="application/json")
 
 def convertItemToID(itemName):
     url = "https://xivapi.com/search?string="+  itemName + "&string_algo=match&indexes=Item&columns=ID&privatekey=" + private_key

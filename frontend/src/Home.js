@@ -10,7 +10,7 @@ function Home() {
     const [resourceName, setResourceName] = useState('Boar Hide');
     const [quantity, setQuantity] = useState(1);
     const [worldDCRegion, setWorldDCRegion] = useState('');
-    const [world, setWorld] = useState('Jenova');
+    const [world, setWorld] = useState('');
     const [showWorld, setShowWorld] = useState(false);
     const [options, setOptions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +56,8 @@ function Home() {
         })
 
         console.log(res.data.length)
-        const temp = Array.from(res.data);
+        console.log(res.data)
+        const temp = Array.from(res.data['prices']);
 
 
         if (temp.length === 0) {
