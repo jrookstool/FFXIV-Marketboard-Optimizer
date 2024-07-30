@@ -1,6 +1,8 @@
 import re
 import sqlite3 as sql
 import json as js
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 
 db_Path = "db.sqlite3" # update if the data base is moved or if testing code 
 
@@ -150,3 +152,28 @@ def insertItem(itemID : int, itemName : str) -> None:
     
     con.commit()
     con.close()
+
+@csrf_exempt
+def getAllItems(temp) -> list:
+    """
+    Queries the internal data base to retrieve all the items in the data base.
+    
+    Parameters
+    -------------------------------------------------------------------
+    None
+
+    Returns
+    -------------------------------------------------------------------
+    list
+        List of all the items in the data base. 
+    """
+
+    con = sql.connect(db_Path)
+    cur = con.cursor()
+
+    query = cur.execute("SELECT name FROM items")
+    items = query.fetchall()
+
+    con.close()
+
+    return HttpResponse(js.dumps(items), content_type="application/json")

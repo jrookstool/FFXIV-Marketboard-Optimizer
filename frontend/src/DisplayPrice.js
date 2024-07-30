@@ -7,7 +7,8 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import { TablePagination } from '@mui/material';
+import { Paper } from '@mui/material';
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -34,6 +35,14 @@ const DisplayPrice = () => {
     const [data, setData] = useState(JSON.parse(sessionStorage.getItem('data'))['prices']);
     const quantity = sessionStorage.getItem('quantity');
     const resource = sessionStorage.getItem('resourceName');
+    const [page, setPage] = React.useState(0);
+
+    const [rowsPerPage, setrowsPerPage] = React.useState(10); // can change later
+
+    const visibleRows = React.useMemo(
+        () => data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+        [data, page]
+    )
 
     const classes = useStyles();
     
@@ -50,6 +59,7 @@ const DisplayPrice = () => {
                 <p>So, you have {quantity} {resource}{(quantity > 1) ? 's' : ''}, what can you make with it?</p>
 
             <div>
+                <Paper sx={{ width: '100%', mb: 2 }}>
                 <TableContainer component={Paper} className='classes.tableContainer'>
                     <Table sx={{ minWidth: 650 }} className='classes.table' aria-label="simple table">
                         <TableHead>
@@ -60,7 +70,7 @@ const DisplayPrice = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {data.map((row) => (
+                            {visibleRows.map((row) => (
                                 <TableRow
                                     key={row.itemName}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -75,6 +85,19 @@ const DisplayPrice = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    component="div"
+                    count={data.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={(e, newPage) => setPage(newPage)}
+                    onRowsPerPageChange={(e) => {
+                        setPage(0);
+                        setrowsPerPage(e.target.value);
+                    }}
+                />
+                </Paper>
             </div>
            
             {/* <button onClick={printData}>Click me!</button> */}

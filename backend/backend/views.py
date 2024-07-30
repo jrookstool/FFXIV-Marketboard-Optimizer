@@ -45,8 +45,11 @@ def search(data):
     wikiPage = requests.get(url)
     soup = BeautifulSoup(wikiPage.content, 'html.parser')
 
-    rows = soup.find_all('table')
-    rows = rows[:len(rows) - 1]
+    rows = soup.find('table', class_='recipe sortable table jquery-tablesorter')
+
+    if rows is None:
+        return HttpResponse(json.dumps({"prices": []}), content_type="application/json")
+    
 
     rows = rows[len(rows) - 1].find('tbody').find_all('tr')[1:]
 
@@ -83,10 +86,6 @@ def search(data):
             items.append(item_name)
             quantity_checks[item_name] = quantity_check
 
-    print("scraping done")
-
-    print(items)
-
     ids = []
     item_id_convert = {}
     
@@ -98,17 +97,12 @@ def search(data):
             insertItem(itemID, itemName)
             
         
-        # TODO: handle cases where item is not found or does not exits
         ids.append(itemID)
 
     for item, id in zip(items, ids):
         item_id_convert[id] = item
    
-    # I need to run the get request until it works
     mbData = getMarketData(ids, dataCenter)
-    # while 'itemIDs' not in mbData:
-    #     mbData = getMarketData(ids, dataCenter)
-
     if (len(items) == 1):
         while 'itemID' not in mbData:
             time.sleep(3)
@@ -117,9 +111,6 @@ def search(data):
         while 'itemIDs' not in mbData:
             time.sleep(3)
             mbData = getMarketData(ids, dataCenter)
-    
-    #TODO: handle cases where the item is not found in the marketboard -- in this case itemID = 0 so just check for that, remember to remove that id from the list of ids and mbdata (sanitation loop?)
-
 
     prices = []
     if len(items) == 1:
@@ -127,13 +118,7 @@ def search(data):
         return HttpResponse(json.dumps({"prices": prices}), content_type="application/json")
 
     searchTable = mbData['items']
-    # for id in ids:
-    #     prices[item_id_convert[id]] = searchTable[str(id)]['listings'][0]['pricePerUnit']
-
-    print("searchTable: ", searchTable)
     for id in ids:
-        print("id: ", id)
-        print("item: ", item_id_convert[id])
         price = 0
         try:
             if (len(searchTable[str(id)]['listings']) == 0):
@@ -149,11 +134,9 @@ def search(data):
 def convertItemToID(itemName):
     url = "https://xivapi.com/search?string="+  itemName + "&string_algo=match&indexes=Item&columns=ID&privatekey=" + private_key
     response = requests.get(url)
-    print(response.json())
     response = response.json()['Results']
     if (len(response) > 1):
         print("Multiple items found for: ", itemName)
-        print("response: ", response)
     return response[0]['ID']
 
 def getMarketData(itemIDs, dataCenter):

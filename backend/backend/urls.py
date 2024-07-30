@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from . import itemsTable
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('search', views.search, name='search'),
+    path('items', itemsTable.getAllItems, name='items'),
 ]

@@ -23,6 +23,34 @@
   color: white;
 }
 
+.Popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 2px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 1);
+  width: 50%; /* Set the width of the popup to 70% of the viewport width */
+  height: 50%; /* Set the height of the popup to 70% of the viewport height */
+  z-index: 1;
+}
+
+.Popup-header {
+  background-color: #282c34; /* Set the background color of the header */
+  color: white; /* Set the text color of the header */
+  padding: 20px; /* Add padding inside the header */
+  height: 91.5%; /* Set the height of the header to 30% of the popup height */
+  border-top-left-radius: 5px; /* Add rounded corners to the top left of the header */
+  border-top-right-radius: 5px; /* Add rounded corners to the top right of the header */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .App-link {
   color: #61dafb;
 }

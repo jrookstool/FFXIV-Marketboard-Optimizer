@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import axios from 'axios';
 import './App.css';
 import Loading from './components/Loading';
 import { useNavigate } from 'react-router-dom';
+import { Autocomplete, TextField, Box } from '@mui/material';
 
 function Home() {
     const [resourceName, setResourceName] = useState('Boar Hide');
@@ -13,6 +14,7 @@ function Home() {
     const [showWorld, setShowWorld] = useState(false);
     const [options, setOptions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isPopup, setIsPopup] = useState(false);
 
     let navigate = useNavigate();
 
@@ -52,6 +54,18 @@ function Home() {
             quantity: quantity,
             dataCenter: location,
         })
+
+        console.log(res.data.length)
+        const temp = Array.from(res.data);
+
+
+        if (temp.length === 0) {
+            setIsPopup(true);
+            setIsLoading(false);
+            return;
+        }
+
+
         setIsLoading(false);
 
         console.log('res', res.data);
@@ -213,97 +227,104 @@ function Home() {
     }
 
     return (
-        <div className="App">
-        {isLoading ? (
-            <Loading />
-        ) : (
-        <header className="App-header">
-            <h1>FFXIV Market Board Optimizer</h1>
-            <p>Used to maximize your profit on the marketboard!</p>
+            <div className="App">
+                {isLoading ? (
+                    <Loading />
+                ) : (
+                <header className="App-header">
+                    {isPopup ? (<div className="Popup">
+                        <div className="Popup-header">
+                            <h2 style={{ "text-align": "center" }}>We couldn't find anything for that item, try a different item.</h2>
+                            <button className='form-button' onClick={() => setIsPopup(false)}>Close</button>
+                        </div>
+                    </div>) : null}
 
-            <div>
-            <div>
-                <label className="form-label">
-                Resource Name:
-                <input 
-                    type="text" 
-                    name="name" 
-                    className="form-input"
-                    value={resourceName}
-                    onChange={(e) => setResourceName(e.target.value)}/>
-                </label>
-            </div>
+                    <h1>FFXIV Market Board Optimizer</h1>
+                    <p>Used to maximize your profit on the marketboard!</p>
 
-            <div>
-                <label className="form-label">
-                    Quantity:
-                    <input 
-                    type="text" 
-                    name="name" 
-                    className="form-input"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}/>
-                </label>
-                
-            </div>
-
-            <div>
-                <label className="form-label">
-                    Data Center Region:
-                    <Select
-                    className="form-input"
-                    value={worldDCRegion}
-                    onChange={(e) => {
-                        setWorldDCRegion(e);
-                        setOptions(getOptionsFromWorld(e.value));
-                        setWorld(null);
-                    }}
-                    options={[
-                        {value: 'Aether', label: 'Aether'},
-                        {value: 'Primal', label: 'Primal'},
-                        {value: 'Crystal', label: 'Crystal'},
-                        {value: 'Dynamis', label: 'Dynamis'},
-                        {value: 'Shadow', label: 'Shadow'},
-                        {value: 'Chaos', label: 'Chaos'},
-                        {value: 'Light', label: 'Light'},
-                        {value: 'Elemental', label: 'Elemental'},
-                        {value: 'Gaia', label: 'Gaia'},
-                        {value: 'Mana', label: 'Mana'},
-                        {value: 'Meteor', label: 'Meteor'},
-                        {value: 'Materia', label: 'Materia'},
-                    ]}
-                    styles={customStyles}
-                    />
                     <div>
-                        <input type="checkbox" onClick={() => setShowWorld(!showWorld)}/>
-                        <label style={{ 'fontSize': '20px' }}> Show World </label>
+                    <div>
+                        <label className="form-label">
+                        Resource Name:
+                        <input 
+                            type="text" 
+                            name="name" 
+                            className="form-input"
+                            value={resourceName}
+                            onChange={(e) => setResourceName(e.target.value)}/>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label className="form-label">
+                            Quantity:
+                            <input 
+                            type="text" 
+                            name="name" 
+                            className="form-input"
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}/>
+                        </label>
+                        
+                    </div>
+
+                    <div>
+                        <label className="form-label">
+                            Data Center Region:
+                            <Select
+                            className="form-input"
+                            value={worldDCRegion}
+                            onChange={(e) => {
+                                setWorldDCRegion(e);
+                                setOptions(getOptionsFromWorld(e.value));
+                                setWorld(null);
+                            }}
+                            options={[
+                                {value: 'Aether', label: 'Aether'},
+                                {value: 'Primal', label: 'Primal'},
+                                {value: 'Crystal', label: 'Crystal'},
+                                {value: 'Dynamis', label: 'Dynamis'},
+                                {value: 'Shadow', label: 'Shadow'},
+                                {value: 'Chaos', label: 'Chaos'},
+                                {value: 'Light', label: 'Light'},
+                                {value: 'Elemental', label: 'Elemental'},
+                                {value: 'Gaia', label: 'Gaia'},
+                                {value: 'Mana', label: 'Mana'},
+                                {value: 'Meteor', label: 'Meteor'},
+                                {value: 'Materia', label: 'Materia'},
+                            ]}
+                            styles={customStyles}
+                            />
+                            <div>
+                                <input type="checkbox" onClick={() => setShowWorld(!showWorld)}/>
+                                <label style={{ 'fontSize': '20px' }}> Show World </label>
+                            </div>
+                            
+                        </label>  
                     </div>
                     
-                </label>  
-            </div>
-            
-            {showWorld && <div>
-                <label className="form-label">
-                World:
-                <Select
-                    className="form-input"
-                    value={world}
-                    onChange={(e) => setWorld(e)}
-                    options={options}
-                    styles={customStyles}
-                />
-                </label>
-            </div>
-            }
-            
+                    {showWorld && <div>
+                        <label className="form-label">
+                        World:
+                        <Select
+                            className="form-input"
+                            value={world}
+                            onChange={(e) => setWorld(e)}
+                            options={options}
+                            styles={customStyles}
+                        />
+                        </label>
+                    </div>
+                    }
+                    
 
-            <button className="form-button" onClick={handleSubmit}> Submit </button>
+                    <button className="form-button" onClick={handleSubmit}> Submit </button>
+                    </div>
+                    
+                    
+                </header>)}
             </div>
-            
-            
-        </header>)}
-        </div> 
-    );
+        );
 }
 
 export default Home;
