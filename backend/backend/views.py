@@ -143,8 +143,25 @@ def search(data):
             prices.append({"itemName": item_id_convert[id], "price": price, "quantity": quantity_checks[item_id_convert[id]], "resource": resourceName.replace("_", " ")})
         except KeyError:
             continue
+        
+        prices.sort(reverse=True, key = getItemPrice)
 
     return HttpResponse(json.dumps({"prices": prices}), content_type="application/json")
+
+def getItemPrice(itemData : dict) -> int:
+    """
+    Extracts the item price from the python dictionary constaingin item data. 
+    
+    Parameters
+    -------------------------------------------------------------------
+    itemData : dict 
+        Python dictionary containing the itemName, price, quantity, and resource
+
+    Returns
+    -------------------------------------------------------------------
+    int
+    """
+    return itemData['price']
 
 def convertItemToID(itemName):
     url = "https://xivapi.com/search?string="+  itemName + "&string_algo=match&indexes=Item&columns=ID&privatekey=" + private_key
